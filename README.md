@@ -1,4 +1,4 @@
-# Visitor Counter Cloud - Kubernetes & Hybrid Cloud Simulation
+# Visitor Counter Cloud â€” Kubernetes & Hybrid Cloud Simulation
 
 ## Project Overview
 
@@ -53,22 +53,22 @@ The application runs in Kubernetes with two Web replicas and a Redis backend. Th
 
 ```text
 visitor-counter-cloud/
-³
-ÃÄÄ app/
-³   ÃÄÄ app.py
-³   ÀÄÄ requirements.txt
-³
-ÃÄÄ k8s/
-³   ÃÄÄ redis-deployment.yaml
-³   ÃÄÄ web-deployment.yaml
-³   ÃÄÄ web-hpa.yaml
-³   ÀÄÄ web-service.yaml
-³
-ÃÄÄ screenshots/
-³
-ÃÄÄ Dockerfile
-ÃÄÄ docker-compose.yml
-ÀÄÄ README.md
+â”‚
+â”œâ”€â”€ app/
+â”‚   â”œâ”€â”€ app.py
+â”‚   â””â”€â”€ requirements.txt
+â”‚
+â”œâ”€â”€ k8s/
+â”‚   â”œâ”€â”€ redis-deployment.yaml
+â”‚   â”œâ”€â”€ web-deployment.yaml
+â”‚   â”œâ”€â”€ web-hpa.yaml
+â”‚   â””â”€â”€ web-service.yaml
+â”‚
+â”œâ”€â”€ screenshots/
+â”‚
+â”œâ”€â”€ Dockerfile
+â”œâ”€â”€ docker-compose.yml
+â””â”€â”€ README.md
 ```
 
 ## Features
@@ -177,7 +177,7 @@ These techniques help reduce container image footprint, storage requirements, an
 
 ![HPA Final State](screenshots/hpa-final-state.png)
 
-### Hybrid Cloud - Public Cloud Simulation
+### Hybrid Cloud â€” Public Cloud Simulation
 
 ![Hybrid Public Cloud](screenshots/hybrid-public-cloud.png)
 
@@ -343,6 +343,6 @@ kubectl get nodes
 
 **Ahsan Ahmad Khan**
 
-B.Tech - Computer Science & Engineering
+B.Tech â€” Computer Science & Engineering
 
 Cloud Computing Project
