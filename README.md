@@ -8,6 +8,17 @@
 ![Redis](https://img.shields.io/badge/Redis-Database-red)
 ![Minikube](https://img.shields.io/badge/Minikube-Local_Cloud-green)
 
+## Project Details
+
+|     Detail   |      Information      |
+|--------------|-----------------------|
+| Project Name | Visitor Counter Cloud |
+| Student Name | Ahsan Ahmad Khan      |
+| Roll Number  | 2410031083            |
+| Course       | B.Tech CSE            |
+| Section      | 3CSE23                |
+| Subject      | Cloud Computing       |
+
 ## Project Overview
 
 Visitor Counter Cloud is a cloud-native web application that counts website visitors using Flask and Redis.
