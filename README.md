@@ -67,6 +67,7 @@ visitor-counter-cloud/
 ├── screenshots/
 │
 ├── Dockerfile
+├── Dockerfile.baseline
 ├── docker-compose.yml
 └── README.md
 ```
@@ -106,7 +107,7 @@ Self-healing behavior was tested by deleting a Web Pod and observing Kubernetes 
 HPA is configured with:
 
 | Configuration | Value |
-|---|---|
+|---|---:|
 | Minimum replicas | 2 |
 | Maximum replicas | 6 |
 | CPU target utilization | 50% |
@@ -139,21 +140,42 @@ This setup demonstrates a hybrid cloud deployment concept in a local environment
 
 ## Cost Optimization Techniques
 
-### 1. Resource Utilization Monitoring
+### 1. Lightweight Docker Images
 
-CPU and memory usage were measured using Kubernetes metrics. Resource requests and limits were configured to help manage resource allocation and avoid unnecessarily large resource reservations.
+The Docker image was optimized by switching from the full Python base image to Python Slim and using pip with `--no-cache-dir`.
 
-### 2. Horizontal Autoscaling
+| Image | Content Size |
+|---|---:|
+| Baseline (`python:3.12`) | 419 MB |
+| Optimized (`python:3.12-slim`) | 49.9 MB |
+| Reduction | 88.1% |
 
-HPA dynamically increases the number of Web Pods during high CPU demand and reduces the replicas when demand decreases, helping avoid unnecessary application replicas during low traffic.
+This reduces image storage requirements and image transfer overhead.
 
-### 3. Lightweight Container Images
+### 2. Horizontal Pod Autoscaling (HPA)
 
-- Python Slim base image
-- Redis Alpine image
-- Pip installation using `--no-cache-dir`
+Horizontal Pod Autoscaler was configured with:
 
-These techniques help reduce container image footprint, storage requirements, and image transfer overhead.
+- Minimum replicas: 2
+- Maximum replicas: 6
+- CPU utilization target: 50%
+
+During load testing, the Web Deployment scaled from 2 to 6 replicas. After load decreased, it scaled back from 6 to 2 replicas, helping avoid unnecessary replicas during low demand.
+
+### 3. Resource Right-Sizing
+
+CPU and memory requests were reduced based on observed resource usage.
+
+| Resource | Before | After | Reduction |
+|---|---:|---:|---:|
+| CPU request per Web Pod | 100m | 50m | 50% |
+| Memory request per Web Pod | 128Mi | 64Mi | 50% |
+| CPU limit per Web Pod | 500m | 500m | Unchanged |
+| Memory limit per Web Pod | 256Mi | 256Mi | Unchanged |
+
+After optimization, the observed Web Pod usage was approximately 2m CPU and 29Mi memory. HPA was also verified with 2 replicas and a reported CPU utilization of 4%.
+
+These optimizations reduce resource requests and improve resource utilization. Actual cloud billing savings were not measured in this local Minikube simulation.
 
 ## Screenshots & Evidence
 
@@ -197,6 +219,8 @@ These techniques help reduce container image footprint, storage requirements, an
 
 ![Docker Image Optimization](screenshots/docker-image-optimization.png)
 
+![Docker Image Size Comparison](screenshots/docker-image-optimization-comparison.png)
+
 ## Running the Project Locally
 
 ### Prerequisites
@@ -211,7 +235,7 @@ These techniques help reduce container image footprint, storage requirements, an
 Clone the repository:
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/visitor-counter-cloud.git
+git clone https://github.com/Ahsan-Ahmad-Khan/visitor-counter-cloud.git
 cd visitor-counter-cloud
 ```
 
