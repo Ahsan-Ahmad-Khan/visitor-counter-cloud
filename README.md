@@ -1,96 +1,113 @@
-# Visitor Counter Cloud — Kubernetes & Hybrid Cloud Simulation
+# Visitor Counter Cloud
+### Kubernetes Deployment, Hybrid Cloud Simulation & Cost Optimization
+
+![Python](https://img.shields.io/badge/Python-3.12-blue)
+![Flask](https://img.shields.io/badge/Flask-Web_App-black)
+![Docker](https://img.shields.io/badge/Docker-Containerization-blue)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-Orchestration-326CE5)
+![Redis](https://img.shields.io/badge/Redis-Database-red)
+![Minikube](https://img.shields.io/badge/Minikube-Local_Cloud-green)
 
 ## Project Overview
 
-Visitor Counter Cloud is a cloud-native web application that counts website visitors using Flask and Redis. The application is containerized using Docker and deployed on Kubernetes clusters using Minikube.
+Visitor Counter Cloud is a cloud-native web application that counts website visitors using Flask and Redis.
 
-The project demonstrates containerization, orchestration, service discovery, self-healing, horizontal autoscaling, resource monitoring, and cost optimization techniques. A hybrid cloud environment is simulated using two separate local Minikube clusters representing Private Cloud and Public Cloud.
+The application is containerized using Docker and deployed on Kubernetes using Minikube. It uses multiple Web Pods, Kubernetes Services, and Horizontal Pod Autoscaling to manage application traffic and resources.
+
+The project also simulates a hybrid cloud environment using two separate Minikube clusters representing a Private Cloud and a Public Cloud.
+
+It focuses on Kubernetes deployment, self-healing, autoscaling, monitoring, and cost optimization.
 
 ## Objectives
 
-- Containerize a Flask application using Docker.
-- Use Redis for storing visitor count data.
+- Build a web application using Flask and Redis.
+- Containerize the application using Docker.
 - Deploy the application on Kubernetes.
-- Configure multiple application replicas.
-- Implement self-healing using Kubernetes.
-- Configure Horizontal Pod Autoscaler (HPA).
-- Monitor CPU and memory utilization.
+- Run multiple Web Pods for availability.
+- Implement Kubernetes self-healing.
+- Configure Horizontal Pod Autoscaling (HPA).
+- Monitor CPU and memory usage.
 - Simulate a hybrid cloud environment.
-- Explore resource and container image optimization techniques.
+- Optimize container image size and Kubernetes resource requests.
 
 ## Architecture
 
-The application follows a containerized, microservice-oriented deployment architecture using Flask, Redis, Docker, and Kubernetes.
+### 1. Application Architecture
 
-### Application Request Flow
+The following diagram shows how a user request reaches the application and how visitor data is stored.
 
 ```mermaid
 flowchart TD
-    U["👤 User / Browser"]
+    U["User / Browser"]
     S["Kubernetes Service<br/>NodePort"]
-    
-    subgraph K["Kubernetes Cluster — Visitor Counter"]
+
+    subgraph K["Kubernetes Cluster"]
         subgraph W["Web Application Layer"]
             W1["Flask Web Pod 1"]
             W2["Flask Web Pod 2"]
-            WN["Additional Web Pods<br/>Up to 6"]
+            W3["Additional Web Pods<br/>During Scaling"]
         end
 
         subgraph D["Data Layer"]
-            RS["Redis Service<br/>Internal ClusterIP"]
-            R["Redis Pod<br/>Visitor Counter Storage"]
+            RS["Redis Service<br/>ClusterIP"]
+            R["Redis Pod<br/>Visitor Count Storage"]
             RS --> R
         end
 
         W1 --> RS
         W2 --> RS
-        WN --> RS
+        W3 --> RS
     end
 
     U -->|"HTTP Request"| S
     S --> W1
     S --> W2
-    S --> WN
+    S --> W3
 ```
 
-### Autoscaling Flow
+### 2. Autoscaling Architecture
+
+The following diagram shows how Kubernetes monitors CPU usage and adjusts the number of Web Pods.
 
 ```mermaid
 flowchart TD
-    W["Web Application Pods"]
-    M["Metrics Server"]
-    H["Horizontal Pod Autoscaler"]
+    A["Web Application Pods"]
+    B["Metrics Server"]
+    C["Horizontal Pod Autoscaler"]
     D["Web Deployment"]
+    E["New or Removed Pods"]
 
-    W -->|"CPU Usage"| M
-    M -->|"Metrics"| H
-    H -->|"Adjust Replica Count"| D
-    D -->|"Creates or Removes Pods"| W
+    A -->|"CPU and Memory Metrics"| B
+    B -->|"CPU Metrics"| C
+    C -->|"Scaling Decision"| D
+    D --> E
+    E --> A
 ```
 
-### How the Architecture Works
+### How It Works
 
-1. The user opens the application through a browser.
-2. The Kubernetes NodePort Service exposes the application and routes incoming requests to available Web Pods.
-3. Flask processes the request and communicates with Redis through the internal Redis Service.
-4. Redis stores and updates the visitor counter.
-5. Kubernetes runs multiple Web Pods to provide availability and distribute application requests.
-6. Metrics Server collects resource utilization metrics.
-7. HPA monitors CPU utilization against the configured 50% target and adjusts Web Pod replicas between 2 and 6 according to demand.
+1. The user opens the application in a browser.
+2. The Kubernetes Service receives the request and routes it to an available Web Pod.
+3. The Flask application processes the request.
+4. Redis stores and updates the visitor count.
+5. Kubernetes manages the Web Pods and replaces failed Pods automatically.
+6. Metrics Server collects resource usage.
+7. HPA checks CPU utilization and adjusts the number of Web Pods according to demand.
 
-The application is deployed independently on two local Minikube clusters to simulate a Private Cloud and a Public Cloud environment.
 ## Technologies Used
 
-- Python
-- Flask
-- Redis
-- Docker
-- Docker Compose
-- Kubernetes
-- Minikube
-- kubectl
-- Horizontal Pod Autoscaler (HPA)
-- Windows CMD
+| Technology | Purpose |
+|---|---|
+| Python | Application programming |
+| Flask | Web application framework |
+| Redis | Visitor counter storage |
+| Docker | Containerization |
+| Docker Compose | Local application deployment |
+| Kubernetes | Container orchestration |
+| Minikube | Local Kubernetes clusters |
+| kubectl | Kubernetes management |
+| HPA | Automatic scaling |
+| Metrics Server | Resource monitoring |
 
 ## Project Structure
 
@@ -119,35 +136,39 @@ visitor-counter-cloud/
 
 ### 1. Visitor Counter Application
 
-- Developed using Flask.
-- Redis stores the visitor count.
-- Visitor count increments whenever the application homepage is accessed.
+- Built using Flask.
+- Redis is used to store the visitor count.
+- The counter increases when the homepage is accessed.
 
 ### 2. Docker Containerization
 
-- Application packaged using Docker.
-- Python Slim base image used to reduce image footprint.
-- Redis Alpine image used.
-- Docker Compose used for local multi-container execution.
+- The Flask application is packaged into a Docker image.
+- Python Slim is used as the base image to reduce image size.
+- Redis uses a lightweight Alpine image.
+- Docker Compose runs the application and Redis locally.
 
 ### 3. Kubernetes Deployment
 
-- Web application deployed through Kubernetes Deployment.
-- Two Web replicas configured.
-- Redis deployed separately.
-- Kubernetes Services used for application access and internal Redis communication.
-- Resource requests and limits configured.
-- Readiness probe implemented.
+- The application is deployed using Kubernetes Deployments.
+- Two Web replicas are configured.
+- Redis is deployed separately.
+- Kubernetes Services provide application access and internal communication.
+- CPU and memory requests and limits are configured.
+- Readiness probes check whether the application is ready to receive requests.
 
 ### 4. Self-Healing
 
-Kubernetes automatically replaces failed Web Pods to maintain the desired replica count.
+Kubernetes maintains the desired number of application replicas.
 
-Self-healing behavior was tested by deleting a Web Pod and observing Kubernetes create a replacement Pod automatically.
+If a Web Pod fails or is deleted, Kubernetes automatically creates a replacement Pod.
+
+This behavior was tested by deleting a Web Pod and observing its automatic replacement.
+
+![Kubernetes Self Healing](screenshots/self-healing.png)
 
 ### 5. Horizontal Pod Autoscaling
 
-HPA is configured with:
+Horizontal Pod Autoscaler adjusts the number of Web Pods based on CPU utilization.
 
 | Configuration | Value |
 |---|---:|
@@ -155,55 +176,92 @@ HPA is configured with:
 | Maximum replicas | 6 |
 | CPU target utilization | 50% |
 
-Under load, the Web Deployment scaled from 2 Pods up to 6 Pods. After load was removed, Kubernetes automatically scaled the deployment down.
+During load testing, the application scaled from 2 Web Pods to 6 Web Pods. After the load was removed, it scaled down to 2 Web Pods.
+
+#### Scale-Up
+
+![HPA Scale Up](screenshots/hpa-scale-up.png)
+
+#### Scale-Down
+
+![HPA Scale Down](screenshots/hpa-scale-down.png)
+
+#### Final HPA Status
+
+![HPA Final State](screenshots/hpa-final-state.png)
 
 ### 6. Resource Monitoring
 
 CPU and memory usage were monitored using Kubernetes Metrics Server and the `kubectl top` command.
 
-Resource requests and limits were configured for both Web and Redis containers.
+Resource requests and limits were configured for the Web and Redis containers.
+
+![Resource Usage](screenshots/resource-usage-baseline.png)
 
 ### 7. Hybrid Cloud Simulation
 
-The project uses two separate local Minikube clusters:
+The project uses two independent Minikube clusters to represent two cloud environments.
 
-- **Private Cloud:** `minikube`
-- **Public Cloud Simulation:** `public-cloud`
+| Environment | Minikube Profile |
+|---|---|
+| Private Cloud | `minikube` |
+| Public Cloud Simulation | `public-cloud` |
 
-The same application was deployed independently on both clusters.
+The application was deployed separately on both clusters.
 
-Both clusters contain:
+Each cluster contains:
 
-- 2 Web replicas
-- 1 Redis replica
+- 2 Web Pods
+- 1 Redis Pod
 - Kubernetes Deployments
 - Kubernetes Services
 
-This setup demonstrates a hybrid cloud deployment concept in a local environment. It is a simulation and does not use actual AWS, Azure, or Google Cloud infrastructure.
+The Private Cloud and Public Cloud simulation can run independently. The application was tested on the public-cloud cluster while the private-cloud environment was stopped.
 
-## Cost Optimization Techniques
+This demonstrates the basic idea of hybrid cloud availability using a local simulation.
 
-### 1. Lightweight Docker Images
+**Note:** Both environments run locally using Minikube. No actual AWS, Azure, or Google Cloud infrastructure is used.
 
-The Docker image was optimized by switching from the full Python base image to Python Slim and using pip with `--no-cache-dir`.
+![Hybrid Public Cloud](screenshots/hybrid-public-cloud.png)
 
-| Image | Content Size |
+#### Private Cloud Status
+
+![Private Cloud Status](screenshots/private-cloud-final-status.png)
+
+#### Public Cloud Simulation Status
+
+![Public Cloud Status](screenshots/public-cloud-final-status.png)
+
+## Cost Optimization
+
+Three optimization techniques were implemented and measured.
+
+### 1. Docker Image Optimization
+
+The baseline Docker image used the full `python:3.12` image. It was optimized by switching to `python:3.12-slim` and using pip with `--no-cache-dir`.
+
+| Image | Size |
 |---|---:|
 | Baseline (`python:3.12`) | 419 MB |
 | Optimized (`python:3.12-slim`) | 49.9 MB |
-| Reduction | 88.1% |
+| Size Reduction | 88.1% |
 
-This reduces image storage requirements and image transfer overhead.
+The optimized image uses less storage and reduces image transfer overhead.
 
-### 2. Horizontal Pod Autoscaling (HPA)
+![Docker Image Optimization](screenshots/docker-image-optimization.png)
 
-Horizontal Pod Autoscaler was configured with:
+#### Image Size Comparison
 
-- Minimum replicas: 2
-- Maximum replicas: 6
-- CPU utilization target: 50%
+![Docker Image Size Comparison](screenshots/docker-image-optimization-comparison.png)
 
-During load testing, the Web Deployment scaled from 2 to 6 replicas. After load decreased, it scaled back from 6 to 2 replicas, helping avoid unnecessary replicas during low demand.
+### 2. Horizontal Pod Autoscaling
+
+HPA was configured to maintain between 2 and 6 Web Pods with a CPU target of 50%.
+
+- Under higher load, the number of Web Pods increased from 2 to 6.
+- After load decreased, the number of Web Pods returned from 6 to 2.
+
+This helps avoid running unnecessary application replicas when demand is low.
 
 ### 3. Resource Right-Sizing
 
@@ -211,90 +269,88 @@ CPU and memory requests were reduced based on observed resource usage.
 
 | Resource | Before | After | Reduction |
 |---|---:|---:|---:|
-| CPU request per Web Pod | 100m | 50m | 50% |
-| Memory request per Web Pod | 128Mi | 64Mi | 50% |
-| CPU limit per Web Pod | 500m | 500m | Unchanged |
-| Memory limit per Web Pod | 256Mi | 256Mi | Unchanged |
+| CPU Request per Web Pod | 100m | 50m | 50% |
+| Memory Request per Web Pod | 128Mi | 64Mi | 50% |
+| CPU Limit per Web Pod | 500m | 500m | Unchanged |
+| Memory Limit per Web Pod | 256Mi | 256Mi | Unchanged |
 
-After optimization, the observed Web Pod usage was approximately 2m CPU and 29Mi memory. HPA was also verified with 2 replicas and a reported CPU utilization of 4%.
+After optimization, the observed Web Pod usage was approximately 2m CPU and 29Mi memory.
 
-These optimizations reduce resource requests and improve resource utilization. Actual cloud billing savings were not measured in this local Minikube simulation.
+The HPA was also observed with 2 replicas and a reported CPU utilization of 4%.
+
+These changes reduce the requested resources per Web Pod and improve resource utilization.
+
+Actual cloud billing savings were not measured because the project runs in a local Minikube environment.
+
+## Project Results
+
+The project successfully demonstrates:
+
+- Docker containerization of a Flask application.
+- Kubernetes deployment using Web and Redis components.
+- Multiple Web replicas.
+- Kubernetes self-healing through Pod replacement.
+- HPA scale-up from 2 to 6 Web Pods.
+- HPA scale-down from 6 to 2 Web Pods.
+- CPU and memory monitoring.
+- Docker image size reduction of 88.1%.
+- CPU request reduction of 50%.
+- Memory request reduction of 50%.
+- Hybrid cloud simulation using two independent Minikube clusters.
 
 ## Screenshots & Evidence
 
-### Application
+All project screenshots are available in the `screenshots/` directory.
 
-![Visitor Counter Application](screenshots/visitor-counter-local.png)
-
-### Kubernetes Self-Healing
-
-![Self Healing](screenshots/self-healing.png)
-
-### HPA Scale-Up
-
-![HPA Scale Up](screenshots/hpa-scale-up.png)
-
-### HPA Scale-Down
-
-![HPA Scale Down](screenshots/hpa-scale-down.png)
-
-### HPA Final State
-
-![HPA Final State](screenshots/hpa-final-state.png)
-
-### Hybrid Cloud — Public Cloud Simulation
-
-![Hybrid Public Cloud](screenshots/hybrid-public-cloud.png)
-
-### Private Cloud Final Status
-
-![Private Cloud Status](screenshots/private-cloud-final-status.png)
-
-### Public Cloud Simulation Final Status
-
-![Public Cloud Status](screenshots/public-cloud-final-status.png)
-
-### Resource Usage
-
-![Resource Usage](screenshots/resource-usage-baseline.png)
-
-### Docker Image Optimization
-
-![Docker Image Optimization](screenshots/docker-image-optimization.png)
-
-![Docker Image Size Comparison](screenshots/docker-image-optimization-comparison.png)
+| Screenshot | Demonstration |
+|---|---|
+| `visitor-counter-local.png` | Local application |
+| `self-healing.png` | Pod replacement |
+| `hpa-scale-up.png` | Scaling from 2 to 6 |
+| `hpa-scale-down.png` | Scaling down after load |
+| `hpa-final-state.png` | Final HPA state |
+| `hybrid-public-cloud.png` | Public cloud simulation |
+| `private-cloud-final-status.png` | Private cluster status |
+| `public-cloud-final-status.png` | Public cluster status |
+| `resource-usage-baseline.png` | Resource monitoring |
+| `docker-image-optimization.png` | Docker image optimization |
+| `docker-image-optimization-comparison.png` | Image size comparison |
 
 ## Running the Project Locally
 
 ### Prerequisites
+
+Install the following tools:
 
 - Docker Desktop
 - Python (optional for running without Docker)
 - Minikube
 - kubectl
 
-### Run using Docker Compose
-
-Clone the repository:
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/Ahsan-Ahmad-Khan/visitor-counter-cloud.git
 cd visitor-counter-cloud
 ```
 
-Start the application:
+### 2. Run Using Docker Compose
+
+Build and start the application:
 
 ```bash
 docker compose up --build
 ```
 
-Open in browser:
+### 3. Open the Application
+
+Open the following URL in your browser:
 
 ```text
 http://localhost:5000
 ```
 
-Stop the application:
+### 4. Stop the Application
 
 ```bash
 docker compose stop
@@ -302,61 +358,63 @@ docker compose stop
 
 ## Kubernetes Deployment
 
-Start Minikube:
+The following commands deploy the application on a Minikube cluster.
+
+### 1. Start Minikube
 
 ```bash
 minikube start
 ```
 
-Create namespace:
+### 2. Create Namespace
 
 ```bash
 kubectl create namespace visitor-counter
 ```
 
-Deploy Redis:
+### 3. Deploy Redis
 
 ```bash
 kubectl apply -f k8s/redis-deployment.yaml
 ```
 
-Deploy Web application:
+### 4. Deploy Web Application
 
 ```bash
 kubectl apply -f k8s/web-deployment.yaml
 ```
 
-Deploy Service:
+### 5. Deploy Web Service
 
 ```bash
 kubectl apply -f k8s/web-service.yaml
 ```
 
-Configure Autoscaling:
+### 6. Configure Autoscaling
 
 ```bash
 kubectl apply -f k8s/web-hpa.yaml
 ```
 
-Check Pods:
+### 7. Check Pods
 
 ```bash
 kubectl get pods -n visitor-counter
 ```
 
-Check Services:
+### 8. Check Services
 
 ```bash
 kubectl get services -n visitor-counter
 ```
 
-Check HPA:
+### 9. Check HPA
 
 ```bash
 kubectl get hpa -n visitor-counter
 ```
 
-Access the application:
+### 10. Access the Application
 
 ```bash
 minikube service visitor-counter-web -n visitor-counter
@@ -364,25 +422,25 @@ minikube service visitor-counter-web -n visitor-counter
 
 ## Monitoring Commands
 
-View CPU and memory utilization:
+### View CPU and Memory Usage
 
 ```bash
 kubectl top pods -n visitor-counter
 ```
 
-View Deployment status:
+### View Deployments
 
 ```bash
 kubectl get deployments -n visitor-counter
 ```
 
-View HPA status:
+### View HPA Status
 
 ```bash
 kubectl get hpa -n visitor-counter
 ```
 
-View cluster nodes:
+### View Cluster Nodes
 
 ```bash
 kubectl get nodes
@@ -391,20 +449,22 @@ kubectl get nodes
 ## Limitations
 
 - Both cloud environments are simulated using local Minikube clusters.
-- No actual cloud provider infrastructure or billing is involved.
-- The project does not implement automatic cross-cluster failover.
-- Redis data is not configured for cross-cluster replication.
+- No actual AWS, Azure, or Google Cloud infrastructure is used.
+- No actual cloud billing data is available.
+- Automatic cross-cluster failover is not implemented.
+- Redis data is not replicated between the two clusters.
 - Public Cloud metrics-server monitoring was not fully verified.
 
 ## Future Scope
 
 - Deploy the application on AWS, Azure, or Google Cloud.
-- Implement cross-cluster traffic routing.
-- Add actual hybrid cloud failover.
-- Configure persistent storage for Redis.
+- Implement automatic cross-cluster failover.
+- Configure Redis replication between cloud environments.
+- Add persistent storage for Redis.
 - Integrate Prometheus and Grafana for advanced monitoring.
-- Add CI/CD using GitHub Actions.
-- Implement centralized logging and alerting.
+- Implement CI/CD using GitHub Actions.
+- Add centralized logging and alerting.
+- Configure cloud load balancing and traffic routing.
 
 ## Author
 
