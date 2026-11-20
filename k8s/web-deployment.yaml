@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: visitor-counter-web
+  namespace: visitor-counter
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: visitor-counter-web
+
+  template:
+    metadata:
+      labels:
+        app: visitor-counter-web
+
+    spec:
+      containers:
+        - name: web
+          image: visitor-counter:v1
+          imagePullPolicy: Never
+
+          env:
+            - name: REDIS_HOST
+              value: redis
+          ports:
+            - containerPort: 5000
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 5

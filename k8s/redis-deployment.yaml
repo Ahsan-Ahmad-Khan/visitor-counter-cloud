@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: visitor-counter-redis
+  namespace: visitor-counter
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: visitor-counter-redis
+
+  template:
+    metadata:
+      labels:
+        app: visitor-counter-redis
+
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "250m"
+              memory: "128Mi"
+
+          readinessProbe:
+            exec:
+              command:
+                - redis-cli
+                - ping
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: visitor-counter
+
+spec:
+  selector:
+    app: visitor-counter-redis
+
+  ports:
+    - port: 6379
+      targetPort: 6379
+
+  type: ClusterIP
