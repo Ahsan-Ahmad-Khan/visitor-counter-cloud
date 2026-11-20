@@ -20,22 +20,65 @@ The project demonstrates containerization, orchestration, service discovery, sel
 
 ## Architecture
 
+The application follows a containerized, microservice-oriented deployment architecture using Flask, Redis, Docker, and Kubernetes.
+
+### Application Request Flow
+
 ```mermaid
 flowchart TD
-    U[User / Browser] --> S[Kubernetes Web Service]
-    S --> W1[Flask Web Pod 1]
-    S --> W2[Flask Web Pod 2]
-    W1 --> R[Redis Service]
-    W2 --> R
-    R --> RP[Redis Pod]
+    U["👤 User / Browser"]
+    S["Kubernetes Service<br/>NodePort"]
+    
+    subgraph K["Kubernetes Cluster — Visitor Counter"]
+        subgraph W["Web Application Layer"]
+            W1["Flask Web Pod 1"]
+            W2["Flask Web Pod 2"]
+            WN["Additional Web Pods<br/>Up to 6"]
+        end
 
-    H[Horizontal Pod Autoscaler] --> W1
-    H --> W2
-    M[Metrics Server] --> H
+        subgraph D["Data Layer"]
+            RS["Redis Service<br/>Internal ClusterIP"]
+            R["Redis Pod<br/>Visitor Counter Storage"]
+            RS --> R
+        end
+
+        W1 --> RS
+        W2 --> RS
+        WN --> RS
+    end
+
+    U -->|"HTTP Request"| S
+    S --> W1
+    S --> W2
+    S --> WN
 ```
 
-The application runs in Kubernetes with two Web replicas and a Redis backend. The Kubernetes Service provides access to the application, while the Horizontal Pod Autoscaler adjusts the number of Web replicas based on CPU utilization.
+### Autoscaling Flow
 
+```mermaid
+flowchart TD
+    W["Web Application Pods"]
+    M["Metrics Server"]
+    H["Horizontal Pod Autoscaler"]
+    D["Web Deployment"]
+
+    W -->|"CPU Usage"| M
+    M -->|"Metrics"| H
+    H -->|"Adjust Replica Count"| D
+    D -->|"Creates or Removes Pods"| W
+```
+
+### How the Architecture Works
+
+1. The user opens the application through a browser.
+2. The Kubernetes NodePort Service exposes the application and routes incoming requests to available Web Pods.
+3. Flask processes the request and communicates with Redis through the internal Redis Service.
+4. Redis stores and updates the visitor counter.
+5. Kubernetes runs multiple Web Pods to provide availability and distribute application requests.
+6. Metrics Server collects resource utilization metrics.
+7. HPA monitors CPU utilization against the configured 50% target and adjusts Web Pod replicas between 2 and 6 according to demand.
+
+The application is deployed independently on two local Minikube clusters to simulate a Private Cloud and a Public Cloud environment.
 ## Technologies Used
 
 - Python
