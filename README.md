@@ -65,9 +65,9 @@ flowchart TD
             RS --> R
         end
 
-        W1 --> RS
-        W2 --> RS
-        W3 --> RS
+        W1 -->|"Read / Update Count"| RS
+        W2 -->|"Read / Update Count"| RS
+        W3 -->|"Read / Update Count"| RS
     end
 
     U -->|"HTTP Request"| S
