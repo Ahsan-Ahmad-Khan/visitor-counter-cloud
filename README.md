@@ -82,28 +82,31 @@ The following diagram shows how Kubernetes monitors CPU usage and adjusts the nu
 
 ```mermaid
 flowchart TD
-    A["Web Application Pods"]
+    A["Flask Web Application Pods"]
     B["Metrics Server"]
-    C["Horizontal Pod Autoscaler"]
+    C["Horizontal Pod Autoscaler (HPA)"]
     D["Web Deployment"]
-    E["New or Removed Pods"]
+    E["Scale Up / Scale Down"]
+    F["Updated Web Pods"]
 
-    A -->|"CPU and Memory Metrics"| B
-    B -->|"CPU Metrics"| C
+    A -->|"CPU Utilization Metrics"| B
+    B -->|"Resource Metrics"| C
     C -->|"Scaling Decision"| D
-    D --> E
-    E --> A
+    D -->|"Adjusts Replica Count<br/>Minimum: 2 | Maximum: 6"| E
+    E --> F
+    F -->|"Updated Workload"| A
 ```
 
 ### How It Works
 
-1. The user opens the application in a browser.
-2. The Kubernetes Service receives the request and routes it to an available Web Pod.
-3. The Flask application processes the request.
+1. The user opens the application in a web browser.
+2. The Kubernetes NodePort Service receives the HTTP request and routes it to an available Flask Web Pod.
+3. The Flask application processes the request and communicates with Redis through the Redis Service.
 4. Redis stores and updates the visitor count.
-5. Kubernetes manages the Web Pods and replaces failed Pods automatically.
-6. Metrics Server collects resource usage.
-7. HPA checks CPU utilization and adjusts the number of Web Pods according to demand.
+5. Kubernetes manages the application Pods and automatically replaces failed Pods.
+6. Metrics Server collects resource utilization metrics from the running Pods.
+7. HPA monitors CPU utilization against the configured 50% target.
+8. Based on resource usage, HPA instructs the Web Deployment to increase or decrease the number of replicas between 2 and 6.
 
 ## Technologies Used
 
