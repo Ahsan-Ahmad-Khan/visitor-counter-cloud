@@ -296,6 +296,29 @@ These changes reduce the requested resources per Web Pod and improve resource ut
 
 Actual cloud billing savings were not measured because the project runs in a local Minikube environment.
 
+## Cost Analysis: Before-and-After Comparison
+
+The following table compares the project configuration before and after optimization.
+
+| Parameter | Before Optimization | After Optimization | Improvement |
+|---|---:|---:|---:|
+| Docker Image Size | 419 MB | 49.9 MB | 88.1% reduction |
+| CPU Request per Web Pod | 100m | 50m | 50% reduction |
+| Memory Request per Web Pod | 128Mi | 64Mi | 50% reduction |
+| CPU Limit per Web Pod | 500m | 500m | No change |
+| Memory Limit per Web Pod | 256Mi | 256Mi | No change |
+| Minimum Web Replicas | 2 | 2 | No change |
+| Maximum Web Replicas | Not configured | 6 | Autoscaling enabled |
+| CPU Utilization Target | Not configured | 50% | HPA configured |
+
+### Cost Analysis Explanation
+
+1. **Docker Image Optimization:** The image size was reduced from 419 MB to 49.9 MB, decreasing storage requirements and image transfer overhead.
+2. **Resource Right-Sizing:** CPU and memory requests per Web Pod were reduced by 50%, allowing more efficient resource allocation.
+3. **Horizontal Pod Autoscaling:** HPA automatically scales Web Pods between 2 and 6 according to CPU utilization, helping avoid unnecessary application replicas during low traffic.
+
+**Cost Analysis Limitation:** Actual cloud billing savings were not measured because the project runs on local Minikube clusters. The improvements represent resource and infrastructure efficiency, not verified monetary savings.
+
 ## Project Results
 
 The project successfully demonstrates:
