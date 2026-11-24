@@ -139,6 +139,21 @@ visitor-counter-cloud/
 │   └── web-service.yaml
 │
 ├── screenshots/
+│   ├── docker-image-optimization.png
+│   ├── hpa-final-state.png
+│   ├── hpa-scale-down.png
+│   ├── hpa-scale-up.png
+│   ├── hybrid-public-cloud.png
+│   ├── private-cloud-final-status.png
+│   ├── public-cloud-final-status.png
+│   ├── resource-usage-baseline.png
+│   ├── self-healing.png
+│   ├── visitor-counter-local.png
+│   └── visitor-counter-local (1).png
+│
+├── architecture diagram/
+│   ├── application-architecture.png
+│   └── autoscaling-architecture.png
 │
 ├── Dockerfile
 ├── Dockerfile.baseline
