@@ -151,13 +151,14 @@ visitor-counter-cloud/
 │   ├── visitor-counter-local.png
 │   └── visitor-counter-local (1).png
 │
-├── architecture diagram/
+├── Architecture_Diagram/
 │   ├── application-architecture.png
 │   └── autoscaling-architecture.png
 │
 ├── Dockerfile
 ├── Dockerfile.baseline
 ├── docker-compose.yml
+├── Cost_Analysis_Before_After.pdf
 └── README.md
 ```
 
